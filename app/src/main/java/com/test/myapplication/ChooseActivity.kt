@@ -28,6 +28,7 @@ class ChooseActivity : AppCompatActivity() {
     val gpviewModel by lazy { ViewModelProviders.of(this).get(gpViewModel::class.java) }
     private lateinit var binding: ActivityChooseBinding
     val timer =Timer()
+    val timer2=Timer()
     val handler= object :Handler(){
         override fun handleMessage(msg: Message) {
             when(msg.what){
@@ -35,6 +36,12 @@ class ChooseActivity : AppCompatActivity() {
                     Log.d("111","refresh")
                     refreshdate()
                     StartTimer()
+                }
+                2->{
+                    Log.d("111","saved")
+                    gpviewModel.saveList()
+                    SaveList()
+
                 }
             }
         }
@@ -46,6 +53,7 @@ class ChooseActivity : AppCompatActivity() {
             chooseList.addAll(list)
         }
         StartTimer()
+        SaveList()
         super.onCreate(savedInstanceState)
         binding= ActivityChooseBinding.inflate(layoutInflater)
         setSupportActionBar(binding.toolbar2)
@@ -53,12 +61,14 @@ class ChooseActivity : AppCompatActivity() {
         binding.addBtn.setOnClickListener {
             chooseList.add(binding.addEdit.text.toString())
             refreshdate()
+            gpviewModel.saveList()
             binding.addEdit.text.clear()
             Log.d("111", chooseList.toString())
         }
         binding.deleteBtn.setOnClickListener {
             chooseList.remove(binding.addEdit.text.toString())
             refreshdate()
+            gpviewModel.saveList()
             binding.addEdit.text.clear()
             Log.d("111", chooseList.toString())
         }
@@ -152,8 +162,9 @@ class ChooseActivity : AppCompatActivity() {
         return true
     }
       override fun onDestroy() {
-        gpviewModel.saveList()
-        Log.d("111","saved")
+          gpviewModel.saveList()
+          Log.d("111","saved")
+          timer2.cancel()
           timer.cancel()
         super.onDestroy()
     }
@@ -168,5 +179,18 @@ class ChooseActivity : AppCompatActivity() {
             }
           timer.schedule(task,30000)
         }
+
+    }
+    fun SaveList(){
+       thread{
+           val msg=Message()
+           msg.what=2
+           val task= object:TimerTask(){
+               override fun run() {
+                   handler.sendMessage(msg)
+               }
+           }
+           timer2.schedule(task,3*60*1000)
+       }
     }
 }
