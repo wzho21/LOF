@@ -58,14 +58,14 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="股票LOF名称    现价    溢价率"
+            android:text="股票  现价  溢价率"
             android:textSize="15sp">
         </TextView>
         <TextView
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="基金LOF名称    现价    溢价率"
+            android:text="基金  现价  溢价率"
             android:textSize="15sp">
         </TextView>
     </LinearLayout>

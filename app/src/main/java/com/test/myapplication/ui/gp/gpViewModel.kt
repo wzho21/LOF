@@ -10,6 +10,9 @@ class gpViewModel:ViewModel() {
     fun saveList()=Repository.saveList()
     fun getSavedList()=Repository.getSaveList()
     fun isSaved()=Repository.isSaved()
+    fun saveMap()=Repository.saveMap()
+    fun getSavedMap()=Repository.getSavedMap()
+    fun isMapSaved()=Repository.isMapSaved()
     private val dateLiveData=MutableLiveData<String>()
     val dateList=ArrayList<date.Rows>()
     val lofLiveDate=Transformations.switchMap(dateLiveData){string->

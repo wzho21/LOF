@@ -30,13 +30,12 @@ class allAdapter( private val dateList:List<date.Rows>):RecyclerView.Adapter<all
         val date = dateList[position]
         if(date.cell.coverprice!="-") {
             holder.name.text = date.cell.name
-            holder.date.text = date.id + "       " + date.cell.price + "       " + date.cell.coverprice + "%"
-            if (date.cell.sg != "开放" && date.cell.sg != "限大额" || date.cell.sh != "开放" && date.cell.sh != "限大额") {
-                holder.name.setTextColor(Color.GREEN)
-            }
-
-            if (date.cell.coverprice.toFloat() <= -0.8 || date.cell.coverprice.toFloat() >= 0.5) {
+            holder.date.text = date.id + "    " + date.cell.price + "    " + date.cell.coverprice + "%"
+            if (date.cell.coverprice.toFloat() >= 0.5) {
                 holder.date.setTextColor(Color.RED)
+            }
+            if(date.cell.coverprice.toFloat() <= -0.8){
+                holder.date.setTextColor(Color.GREEN)
             }
         }
     }

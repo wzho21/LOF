@@ -4,7 +4,7 @@
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "com.test.myapplication",
+  "applicationId": "com.test.myapplication1",
   "variantName": "processReleaseResources",
   "elements": [
     {

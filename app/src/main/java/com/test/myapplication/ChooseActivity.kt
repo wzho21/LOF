@@ -10,13 +10,16 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.test.myapplication.databinding.ActivityChooseBinding
 import com.test.myapplication.logic.model.chooseList
 import com.test.myapplication.logic.model.date
+import com.test.myapplication.logic.model.myTextMap
 import com.test.myapplication.ui.MyApplication
 import com.test.myapplication.ui.gp.gpViewModel
 import com.test.myapplication.ui.jj.jjViewModel
@@ -40,6 +43,7 @@ class ChooseActivity : AppCompatActivity() {
                 2->{
                     Log.d("111","saved")
                     gpviewModel.saveList()
+                    gpviewModel.saveMap()
                     SaveList()
 
                 }
@@ -52,6 +56,11 @@ class ChooseActivity : AppCompatActivity() {
             val list=gpviewModel.getSavedList()
             chooseList.addAll(list)
         }
+        if(gpviewModel.isMapSaved()){
+            myTextMap.clear()
+            val map = gpviewModel.getSavedMap()
+            myTextMap.putAll(map)
+        }
         StartTimer()
         SaveList()
         super.onCreate(savedInstanceState)
@@ -62,6 +71,7 @@ class ChooseActivity : AppCompatActivity() {
             chooseList.add(binding.addEdit.text.toString())
             refreshdate()
             gpviewModel.saveList()
+            gpviewModel.saveMap()
             binding.addEdit.text.clear()
             Log.d("111", chooseList.toString())
         }
@@ -69,6 +79,7 @@ class ChooseActivity : AppCompatActivity() {
             chooseList.remove(binding.addEdit.text.toString())
             refreshdate()
             gpviewModel.saveList()
+            gpviewModel.saveMap()
             binding.addEdit.text.clear()
             Log.d("111", chooseList.toString())
         }
@@ -100,35 +111,103 @@ class ChooseActivity : AppCompatActivity() {
                     val view=LayoutInflater.from(this).inflate(R.layout.lof_item,binding.jjlofchoose,false)
                     val name=view.findViewById(R.id.nameTextView) as TextView
                     val message=view.findViewById(R.id.dateTextView) as TextView
+                    val editText = view.findViewById(R.id.editText) as MyTextView
+                    val editBtn = view.findViewById(R.id.editBtn) as TextView
                     if (date[i].cell.coverprice=="-"){date[i].cell.coverprice = "-0.0"}
                     name.text=date[i].cell.name
-                    message.text=date[i].id + "       " + date[i].cell.price + "       " + date[i].cell.coverprice.toFloat() + "%"
-                    if (date[i].cell.sg != "开放" && date[i].cell.sg != "限大额" || date[i].cell.sh != "开放" && date[i].cell.sh != "限大额") {
-                        name.setTextColor(Color.GREEN)
-                    }
-                    if (date[i].cell.coverprice.toFloat() <= -0.8 || date[i].cell.coverprice.toFloat() >= 0.5) {
+                    editText.text = myTextMap.get(date[i].id)
+                    message.text=date[i].id + "    " + date[i].cell.price + "    " + date[i].cell.coverprice.toFloat() + "%"
+                    if (date[i].cell.coverprice.toFloat() >= 0.5) {
                        message.setTextColor(Color.RED)
+                    }
+                    if(date[i].cell.coverprice.toFloat() <=-0.8){
+                        message.setTextColor(Color.GREEN)
+                    }
+                    editBtn.setOnClickListener {
+                        val dialog = CustomDialog(
+                            this,
+                            "编辑备注",
+                            "最多支持40字",
+                            object : CustomDialog.clickCallBack {
+                                override fun onYesClick(dialog: CustomDialog) {
+                                    val input: String = dialog.mEditText?.text.toString()
+                                    editText.setText(input)
+                                    myTextMap.put(date[i].id,input)
+                                    gpviewModel.saveMap()
+                                    dialog?.dismiss()
+                                }
+                            },
+                            true,
+                            editText.text.toString()
+                        )
+                        dialog.setOnDismissListener {
+                            //关闭监听逻辑
+                        }
+                        //显示的位置居中提高100dp-------------
+                        val w = dialog.window
+                        val lp = w!!.attributes
+                        lp.x = 0
+                        lp.y = -100
+                        //-----------------------------------
+
+                        dialog.show();
                     }
                     binding.jjlofchoose.addView(view)
                 }
             }
         }
-        private fun showDate1(date: List<date.Rows>){
+        private fun showDate1(date: List<date.Rows>) {
             binding.gplofchoose.removeAllViews()
-            val count=date.size
-            for(i in 0 until count){
-                if(date[i].id in chooseList){
-                    val view=LayoutInflater.from(this).inflate(R.layout.lof_item,binding.gplofchoose,false)
-                    val name=view.findViewById(R.id.nameTextView) as TextView
-                    val message=view.findViewById(R.id.dateTextView) as TextView
-                    if (date[i].cell.coverprice=="-"){date[i].cell.coverprice = "-0.0"}
-                    name.text=date[i].cell.name
-                    message.text=date[i].id + "       " + date[i].cell.price + "       " + date[i].cell.coverprice.toFloat() + "%"
-                    if (date[i].cell.sg != "开放" && date[i].cell.sg != "限大额" || date[i].cell.sh != "开放" && date[i].cell.sh != "限大额") {
-                        name.setTextColor(Color.GREEN)
+            val count = date.size
+            for (i in 0 until count) {
+                if (date[i].id in chooseList) {
+                    val view = LayoutInflater.from(this)
+                        .inflate(R.layout.lof_item, binding.gplofchoose, false)
+                    val name = view.findViewById(R.id.nameTextView) as TextView
+                    val message = view.findViewById(R.id.dateTextView) as TextView
+                    val editText = view.findViewById(R.id.editText) as MyTextView
+                    val editBtn = view.findViewById(R.id.editBtn) as TextView
+                    if (date[i].cell.coverprice == "-") {
+                        date[i].cell.coverprice = "-0.0"
                     }
-                    if (date[i].cell.coverprice.toFloat() <= -0.8 || date[i].cell.coverprice.toFloat() >= 0.5) {
+                    name.text = date[i].cell.name
+                    editText.text = myTextMap.get(date[i].id)
+                    message.text =
+                        date[i].id + "    " + date[i].cell.price + "    " + date[i].cell.coverprice.toFloat() + "%"
+                    if (date[i].cell.coverprice.toFloat() >= 0.5) {
                         message.setTextColor(Color.RED)
+                    }
+                    if (date[i].cell.coverprice.toFloat() <= -0.8) {
+                        message.setTextColor(Color.GREEN)
+                    }
+                    editBtn.setOnClickListener {
+                        val dialog = CustomDialog(
+                            this,
+                            "编辑备注",
+                            "最多支持40字",
+                            object : CustomDialog.clickCallBack {
+                                override fun onYesClick(dialog: CustomDialog) {
+                                    val input: String = dialog.mEditText?.text.toString()
+                                    editText.setText(input)
+                                    myTextMap.put(date[i].id,input)
+                                    gpviewModel.saveMap()
+                                    dialog?.dismiss()
+                                }
+                            },
+                            true,
+                            editText.text.toString()
+                        )
+                        dialog.setOnDismissListener {
+                            //关闭监听逻辑
+                        }
+                        //显示的位置居中提高100dp-------------
+                        val w = dialog.window
+                        val lp = w!!.attributes
+                        lp.x = 0
+                        lp.y = -100
+                        //-----------------------------------
+
+                        dialog.show();
                     }
                     binding.gplofchoose.addView(view)
                 }
@@ -163,6 +242,7 @@ class ChooseActivity : AppCompatActivity() {
     }
       override fun onDestroy() {
           gpviewModel.saveList()
+          gpviewModel.saveMap()
           Log.d("111","saved")
           timer2.cancel()
           timer.cancel()

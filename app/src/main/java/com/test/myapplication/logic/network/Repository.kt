@@ -9,8 +9,11 @@ import kotlin.coroutines.CoroutineContext
 
 object Repository {
     fun saveList()=ChooseListDao.saveList()
-    fun getSaveList()=ChooseListDao.getSaveList()
+    fun saveMap() = ChooseListDao.saveMap()
+    fun getSavedMap()=ChooseListDao.getSaveMap()
     fun isSaved()=ChooseListDao.isListSaved()
+    fun getSaveList()=ChooseListDao.getSaveList()
+    fun isMapSaved()=ChooseListDao.isMapSaved()
     private fun<T>fire(context:CoroutineContext,block:suspend ()->Result<T>)= liveData<Result<T>>(context){
         val result=try {
             block()
